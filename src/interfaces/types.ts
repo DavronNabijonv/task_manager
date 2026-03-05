@@ -8,3 +8,9 @@ export interface CreateTask {
   title: string;
   description: string;
 }
+
+export interface UpdateTask {
+  id: number;
+  title?: string;
+  description?: string;
+}

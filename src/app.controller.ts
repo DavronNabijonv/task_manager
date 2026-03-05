@@ -1,28 +1,44 @@
-import { Controller, Get, Post } from '@nestjs/common';
-import { AppService, TasksService } from './app.providers';
-import type { CreateTask, Tasks } from './interfaces/types';
+import {
+  Controller,
+  Get,
+  Post,
+  Delete,
+  Param,
+  Body,
+  Patch,
+} from '@nestjs/common';
+import { TasksService } from './app.providers';
+import type { CreateTask, Tasks, UpdateTask } from './interfaces/types';
 
 @Controller()
-export class AppController {
-  constructor(private readonly appService: AppService) {}
-
+export class TasksController {
   @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  getTask(): string {
+    return 'Hello world';
   }
 }
 
 @Controller('tasks')
-export class TasksController {
+export class TaskRequests {
   constructor(private tasksService: TasksService) {}
 
-  @Post()
-  createTask(task: CreateTask): void {
-    this.tasksService.createTask(task);
+  @Post('create')
+  createTask(@Body() task: CreateTask): Tasks {
+    return this.tasksService.createTask(task);
   }
 
-  @Get()
-  getAllTasks(): Promise<Tasks[]> {
+  @Get('all')
+  getAllTasks(): Tasks[] {
     return this.tasksService.getAllTasks();
+  }
+
+  @Patch('update/:id')
+  updateTask(@Param('id') id: number, @Body() tasks: UpdateTask): Tasks | null {
+    return this.tasksService.updateTask({ id, tasks });
+  }
+
+  @Delete('delete/:id')
+  deleteTask(@Param('id') id: string): boolean {
+    return this.tasksService.deleteTask(id);
   }
 }

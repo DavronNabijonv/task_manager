@@ -1,23 +1,36 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTask, Tasks } from './interfaces/types';
 
 @Injectable()
-export class AppService {
-  getHello(): string {
-    return 'Hello World!';
-  }
-}
-
-@Injectable()
 export class TasksService {
-  private tasks: Tasks[] = [
-    { id: 1, title: 'Api', description: 'Create request apis' },
-  ];
+  private tasks: Tasks[] = [];
+
+  private lastId = 1;
+
+  getTaskById(id: number): Tasks {
+    const task = this.tasks.find((t) => t.id === id);
+    if (!task) throw new NotFoundException(`Task #${id} not found`);
+    return task;
+  }
 
   createTask(task: CreateTask): Tasks {
-    const newTask = { id: this.tasks.length + 1, ...task };
+    const newTask = { id: ++this.lastId, ...task };
     this.tasks.push(newTask);
     return newTask;
+  }
+
+  // Then updateTask becomes:
+  updateTask({ id, tasks }) {
+    const task = this.getTaskById(Number(id)); // reuse, don't repeat
+    Object.assign(task, tasks);
+    return task;
+  }
+
+  deleteTask(id: string): boolean {
+    const index = this.tasks.findIndex((t) => t.id === Number(id));
+    if (index === -1) return false;
+    this.tasks.splice(index, 1);
+    return true;
   }
 
   getAllTasks(): Tasks[] {
